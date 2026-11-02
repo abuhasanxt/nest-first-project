@@ -1,7 +1,9 @@
 import { IsString } from 'class-validator';
 
 
-export class createBookDto{
+export class createUserDto{
     @IsString()
-    name:string
+    username:string
+    @IsString()
+    password:string
 }

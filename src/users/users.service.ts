@@ -1,5 +1,5 @@
 
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './user.entity.js';
@@ -24,7 +24,13 @@ export class UsersService {
   }
 
   async Signup(body:any){
-    
+    const existUser=await this.usersRepository.findOneBy({username:body.username})
+    if (existUser) {
+       throw new HttpException({
+      status: HttpStatus.FORBIDDEN,
+      error: 'You already registered',
+    }, HttpStatus.FORBIDDEN)
+    }
     const hashedPassword = await bcrypt.hash(body.password, 10);
     const UserEntity = this.usersRepository.create({ ...body, password: hashedPassword });
     return this.usersRepository.save(UserEntity)
