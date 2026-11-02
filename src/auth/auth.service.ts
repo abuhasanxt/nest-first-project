@@ -11,7 +11,8 @@ export class AuthService {
   ) {}
 
   async validateUser(username: string, pass: string): Promise<any> {
-    const user = await this.usersService.findOne(username);
+    const userId = Number(username);
+    const user = await this.usersService.findOne(userId);
     if (user && user.password === pass) {
       const { password, ...result } = user;
       return result;
@@ -26,7 +27,7 @@ export class AuthService {
     };
   }
 
-  async check():Promise<any>{
-    return "You got me!"
+  async SignUp(body:any):Promise<any>{
+    return this.usersService.Signup(body)
   }
 }

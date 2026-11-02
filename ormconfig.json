@@ -4,7 +4,7 @@
   "port": 3306,
   "username": "root",
   "password": "abu##228",
-  "database": "mysql",
+  "database": "test",
   "entities": ["dist/**/*.entity{.ts,.js}"],
   "synchronize": true
 }
