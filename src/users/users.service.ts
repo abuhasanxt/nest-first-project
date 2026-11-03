@@ -1,4 +1,6 @@
 import {
+  BadRequestException,
+  ConflictException,
   HttpException,
   HttpStatus,
   Injectable,
@@ -42,6 +44,70 @@ export class UsersService {
       },
     };
   }
+async update(
+  id: number,
+  data: Partial<Omit<User, 'id'>>,
+) {
+  //  Find existing user
+  const user = await this.usersRepository.findOne({
+    where: { id },
+  });
+
+  if (!user) {
+    throw new NotFoundException('User not found');
+  }
+
+  //  Prevent ID update
+  if ('id' in data) {
+    throw new BadRequestException('User ID cannot be updated');
+  }
+
+  //  Only username can be updated
+  const allowedFields = Object.keys(data);
+
+  if (allowedFields.some((field) => field !== 'username')) {
+    throw new BadRequestException('Only username can be updated');
+  }
+
+  //  Remove undefined fields
+  const updateData = Object.fromEntries(
+    Object.entries(data).filter(([_, value]) => value !== undefined),
+  );
+
+  //  Check username provided
+  if (!updateData.username || typeof updateData.username !== 'string') {
+    throw new BadRequestException('Username is required');
+  }
+
+  //  Check if username is unchanged
+  if (user.username === updateData.username) {
+    throw new ConflictException('Username is already in use');
+  }
+
+  //  Check duplicate username
+  const existingUser = await this.usersRepository.findOne({
+    where: { username: updateData.username },
+  });
+
+  if (existingUser) {
+    throw new ConflictException('This username is already taken');
+  }
+
+  //  Update username
+  await this.usersRepository.update(id, {
+    username: updateData.username,
+  });
+//  Get updated user
+const updatedUser = await this.usersRepository.findOneByOrFail({ id });
+  //  Return updated user
+  return  {
+  message: 'User updated successfully',
+  data: {
+    id: updatedUser.id,
+    username: updatedUser.username,
+  }
+}
+}
 
  async remove(id: number) {
   const user = await this.usersRepository.findOneBy({ id });
