@@ -8,8 +8,8 @@ export class BookController{
 constructor(private readonly bookService:BookService){}
 
 @Get('/get')
-getBook():string{
-    return this.bookService.getBook()
+getBook():Promise<Book[]>{
+    return this.bookService.findAll()
 }
 
 @Post('/add')
