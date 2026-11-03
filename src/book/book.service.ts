@@ -6,11 +6,13 @@ import { InjectRepository } from '@nestjs/typeorm';
 @Injectable()
 export class BookService {
   constructor(@InjectRepository(Book) private book: Repository<Book>) {}
-  
+
   findAll(): Promise<Book[]> {
     return this.book.find();
   }
-
+findOne(id: number): Promise<Book | null> {
+    return this.book.findOne({ where: { id } });
+  }
   addBook(data: any) {
     console.log(data);
     const bookEntity = this.book.create({
