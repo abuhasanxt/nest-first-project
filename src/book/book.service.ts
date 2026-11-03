@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { Book } from './book.entity.js';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -22,4 +22,48 @@ findOne(id: number): Promise<Book | null> {
     });
     return this.book.save(bookEntity);
   }
+
+ async update(
+  id: number,
+  data: Partial<Omit<Book, 'id'>>,
+): Promise<Book> {
+  //  Find existing book
+  const book = await this.book.findOne({
+    where: { id },
+  });
+
+  if (!book) {
+    throw new NotFoundException('Book not found');
+  }
+
+  //  Prevent ID update
+  if ('id' in data) {
+    throw new BadRequestException('Book ID cannot be updated');
+  }
+
+  //  Remove undefined fields
+  const updateData = Object.fromEntries(
+    Object.entries(data).filter(([_, value]) => value !== undefined),
+  );
+
+  //  Check at least one field provided
+  if (Object.keys(updateData).length === 0) {
+    throw new BadRequestException('At least one field is required');
+  }
+
+  //  Check whether any field actually changed
+  const isChanged = Object.entries(updateData).some(
+    ([key, value]) => book[key as keyof Book] !== value,
+  );
+
+  if (!isChanged) {
+    throw new ConflictException('Book already updated');
+  }
+
+  //  Update book
+  await this.book.update(id, updateData);
+
+  //  Return updated book
+  return this.book.findOneByOrFail({ id });
+}
 }

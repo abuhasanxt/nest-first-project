@@ -6,6 +6,7 @@ import {
   Param,
   ParseIntPipe,
   Post,
+  Put,
 } from '@nestjs/common';
 import { BookService } from './book.service.js';
 import { createBookDto } from './dtos/create-book.dto.js';
@@ -33,4 +34,12 @@ export class BookController {
     console.log(body);
     return this.bookService.addBook(body);
   }
+
+@Put('/update/:id')
+async updateBook(
+  @Param('id', ParseIntPipe) id: number,
+  @Body() data: Partial<Omit<Book, 'id'>>,
+): Promise<Book> {
+  return this.bookService.update(id, data);
+}
 }
