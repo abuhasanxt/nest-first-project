@@ -2,9 +2,11 @@ import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { BookController } from './book.controller.js';
 import { BookService } from './book.service.js';
 import { LoggerMiddleware } from '../logger.middleware.js';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { Book } from './book.entity.js';
 
 @Module({
-  imports: [],
+  imports: [TypeOrmModule.forFeature([Book])],
   controllers: [BookController],
   providers: [BookService],
 })
