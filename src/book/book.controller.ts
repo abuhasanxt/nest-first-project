@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   NotFoundException,
   Param,
@@ -42,4 +43,12 @@ async updateBook(
 ): Promise<Book> {
   return this.bookService.update(id, data);
 }
+@Delete("/:id")
+async removeBook(
+    @Param('id',ParseIntPipe)id:number,
+):Promise<{message:string}>{
+    await this.bookService.remove(id)
+    return {message:"Book deleted successfully"}
+}
+
 }

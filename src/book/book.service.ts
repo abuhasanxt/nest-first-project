@@ -66,4 +66,18 @@ findOne(id: number): Promise<Book | null> {
   //  Return updated book
   return this.book.findOneByOrFail({ id });
 }
+
+async remove(id: number): Promise<void> {
+  // Check book exists
+  const book = await this.book.findOne({
+    where: { id },
+  });
+
+  if (!book) {
+    throw new NotFoundException('Book not found');
+  }
+
+  // Delete book
+  await this.book.delete(id);
+}
 }
