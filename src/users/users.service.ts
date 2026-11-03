@@ -27,12 +27,20 @@ export class UsersService {
     const existUser=await this.usersRepository.findOneBy({username:body.username})
     if (existUser) {
        throw new HttpException({
-      status: HttpStatus.FORBIDDEN,
+      status: HttpStatus.CONFLICT,
       error: 'You already registered',
-    }, HttpStatus.FORBIDDEN)
+    }, HttpStatus.CONFLICT)
     }
     const hashedPassword = await bcrypt.hash(body.password, 10);
-    const UserEntity = this.usersRepository.create({ ...body, password: hashedPassword });
-    return this.usersRepository.save(UserEntity)
+    const UserEntity: User = this.usersRepository.create({ ...body, password: hashedPassword } as Partial<User>);
+    const saveUser=await this.usersRepository.save(UserEntity)
+    const {id,username}=saveUser
+    return {
+      message:"User created successfully",
+      data:{
+        id,
+        username
+      }
+    }
   }
 }
