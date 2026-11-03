@@ -43,9 +43,22 @@ export class UsersService {
     };
   }
 
-  async remove(id: number): Promise<void> {
-    await this.usersRepository.delete(id);
+ async remove(id: number) {
+  const user = await this.usersRepository.findOneBy({ id });
+
+  if (!user) {
+    throw new NotFoundException('User not found');
   }
+
+  await this.usersRepository.delete(id);
+
+  return {
+    message: 'User deleted successfully',
+    data: {
+      id: user.id,
+    },
+  };
+}
   // Find user by username (For Authentication)
   findByUsername(username: string): Promise<User | null> {
     return this.usersRepository.findOneBy({ username });
